@@ -38,11 +38,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Importing data
 
-#df_movies =pd.read_csv("https://raw.hithutbursecontent.com/tawmad1/Streamlit-app-data-AM6/main/movies.csv")
-#df_imdb =pd.read_csv("https://raw.hithutbursecontent.com/tawmad1/Streamlit-app-data-AM6/main/imdb_data.csv")
-movies = pd.read_csv('resources/data/movies.csv',delimiter=',')
-ratings = pd.read_csv('resources/data/ratings.csv')
-movies.dropna(inplace=True)
+df_movies =pd.read_csv("https://raw.hithutbursecontent.com/tawmad1/Streamlit-app-data-AM6/main/movies.csv")
+df_imdb =pd.read_csv("https://raw.hithutbursecontent.com/tawmad1/Streamlit-app-data-AM6/main/imdb_data.csv")
+#movies = pd.read_csv('resources/data/movies.csv',delimiter=',')
+#ratings = pd.read_csv('resources/data/ratings.csv')
+#movies.dropna(inplace=True)
+movies =pd.merge(df_movies, df_imdb, on = 'movieId', how = 'left')
 
 def data_preprocessing(subset_size):
     """Prepare data for use within Content filtering algorithm.
