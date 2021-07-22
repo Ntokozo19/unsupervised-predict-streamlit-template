@@ -29,13 +29,18 @@
 
 # Script dependencies
 import os
+
 import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Importing data
-movies = pd.read_csv('resources/data/movies.csv', sep = ',')
+
+#df_movies =pd.read_csv("https://raw.hithutbursecontent.com/tawmad1/Streamlit-app-data-AM6/main/movies.csv")
+#df_imdb =pd.read_csv("https://raw.hithutbursecontent.com/tawmad1/Streamlit-app-data-AM6/main/imdb_data.csv")
+movies = pd.read_csv('resources/data/movies.csv',delimiter=',')
 ratings = pd.read_csv('resources/data/ratings.csv')
 movies.dropna(inplace=True)
 
@@ -53,8 +58,14 @@ def data_preprocessing(subset_size):
         Subset of movies selected for content-based filtering.
 
     """
-    # Split genre data into individual words.
-    movies['keyWords'] = movies['genres'].str.replace('|', ' ')
+    import re
+    # Adding the features for our content based filtering 
+    movies['combined_features'] = movies['plot_keywords']+" "+movies['title_cast']+" "+movies['director']+" "+movies['genres']
+
+    pattern =r'\| |\-|\.|\-'
+
+    movies['combined_features'] = movies['combined_features'].str.replace(pattern,' ').str.lower()
+
     # Subset of the data
     movies_subset = movies[:subset_size]
     return movies_subset
@@ -84,16 +95,16 @@ def content_model(movie_list,top_n=10):
     # Instantiating and generating the count matrix
     count_vec = CountVectorizer()
     count_matrix = count_vec.fit_transform(data['keyWords'])
-    indices = pd.DataFrame(data['title'])
+    indices = pd.Series(data['title'])
     cosine_sim = cosine_similarity(count_matrix, count_matrix)
     # Getting the index of the movie that matches the title
     idx_1 = indices[indices == movie_list[0]].index[0]
     idx_2 = indices[indices == movie_list[1]].index[0]
     idx_3 = indices[indices == movie_list[2]].index[0]
     # Creating a Series with the similarity scores in descending order
-    rank_1 = cosine_sim[idx_1].astype(int)
-    rank_2 = cosine_sim[idx_2].astype(int)
-    rank_3 = cosine_sim[idx_3].astype(int)
+    rank_1 = cosine_sim[idx_1]
+    rank_2 = cosine_sim[idx_2]
+    rank_3 = cosine_sim[idx_3]
     # Calculating the scores
     score_series_1 = pd.Series(rank_1).sort_values(ascending = False)
     score_series_2 = pd.Series(rank_2).sort_values(ascending = False)
